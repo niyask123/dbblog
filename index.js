@@ -11,26 +11,23 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
-// Configure Cloudinary
 cloudinary.config({
   cloud_name: 'dlfzhlide',
   api_key: '831974598167488',
   api_secret: 'gH0GKfHlgz0PcpzYN9qjiXPhCYM',
 });
 
-// Configure Multer Storage
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'blog-images',
-    format: async (req, file) => 'png', // supports promises as well
-    public_id: (req, file) => file.originalname.split('.')[0], // better way to handle filenames
+    format: async (req, file) => 'png',
+    public_id: (req, file) => file.originalname.split('.')[0],
   },
 });
 
 const upload = multer({ storage: storage });
 
-// Create a new blog post
 app.post('/api/blogs', upload.single('image'), async (req, res) => {
   const { heading, title, description, blogURL, date } = req.body;
   const image = req.file.path;
@@ -52,7 +49,6 @@ app.post('/api/blogs', upload.single('image'), async (req, res) => {
   }
 });
 
-// Get all blog posts
 app.get('/api/blogs', async (req, res) => {
   try {
     const blogs = await prisma.blog.findMany();
@@ -62,7 +58,6 @@ app.get('/api/blogs', async (req, res) => {
   }
 });
 
-// Edit a blog post
 app.put('/api/blogs/:id', upload.single('image'), async (req, res) => {
   const { id } = req.params;
   const { heading, title, description, blogURL, date } = req.body;
@@ -91,7 +86,6 @@ app.put('/api/blogs/:id', upload.single('image'), async (req, res) => {
   }
 });
 
-// Delete a blog post
 app.delete('/api/blogs/:id', async (req, res) => {
   const { id } = req.params;
 
