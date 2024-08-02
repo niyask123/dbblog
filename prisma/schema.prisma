@@ -1,0 +1,18 @@
+datasource db {
+  provider = "postgresql"
+  url      = "postgres://default:aTHNiLZFK97e@ep-lucky-rain-a4xlv2nz.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Blog {
+  id          Int      @id @default(autoincrement())
+  heading     String
+  title       String
+  description String
+  blogURL     String
+  date        DateTime
+  image       String
+}
