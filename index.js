@@ -23,7 +23,7 @@ cloudinary.config({
 });
 
 // Configure Multer storage with Cloudinary
-const storage = new CloudinaryStorage({
+const blogStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'blog-images',
@@ -32,10 +32,20 @@ const storage = new CloudinaryStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const projectStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'projects_image',
+    format: async (req, file) => 'png',
+    public_id: (req, file) => file.originalname.split('.')[0],
+  },
+});
 
-// Create a new blog post
-app.post('/api/blogs', upload.single('image'), async (req, res) => {
+const uploadBlog = multer({ storage: blogStorage });
+const uploadProject = multer({ storage: projectStorage });
+
+// Blog Routes
+app.post('/api/blogs', uploadBlog.single('image'), async (req, res) => {
   const { heading, title, description, blogURL, date } = req.body;
   const image = req.file ? req.file.path : null;
 
@@ -57,7 +67,6 @@ app.post('/api/blogs', upload.single('image'), async (req, res) => {
   }
 });
 
-// Get all blog posts
 app.get('/api/blogs', async (req, res) => {
   try {
     const blogs = await prisma.blog.findMany();
@@ -68,8 +77,7 @@ app.get('/api/blogs', async (req, res) => {
   }
 });
 
-// Edit a blog post
-app.put('/api/blogs/:id', upload.single('image'), async (req, res) => {
+app.put('/api/blogs/:id', uploadBlog.single('image'), async (req, res) => {
   const { id } = req.params;
   const { heading, title, description, blogURL, date } = req.body;
   const image = req.file ? req.file.path : null;
@@ -98,7 +106,6 @@ app.put('/api/blogs/:id', upload.single('image'), async (req, res) => {
   }
 });
 
-// Delete a blog post
 app.delete('/api/blogs/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -110,6 +117,82 @@ app.delete('/api/blogs/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting blog post:', error);
     res.status(500).json({ error: 'Error deleting blog post' });
+  }
+});
+
+// Project Routes
+app.post('/api/projects', uploadProject.single('image'), async (req, res) => {
+  const { heading, caption, languages, url, date } = req.body;
+  const image = req.file ? req.file.path : null;
+
+  try {
+    const project = await prisma.projects.create({
+      data: {
+        heading,
+        caption,
+        languages,
+        url,
+        date: new Date(date),
+        image,
+      },
+    });
+    res.json(project);
+  } catch (error) {
+    console.error('Error creating project:', error);
+    res.status(500).json({ error: 'Error creating project' });
+  }
+});
+
+app.get('/api/projects', async (req, res) => {
+  try {
+    const projects = await prisma.projects.findMany();
+    res.json(projects);
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    res.status(500).json({ error: 'Error fetching projects' });
+  }
+});
+
+app.put('/api/projects/:id', uploadProject.single('image'), async (req, res) => {
+  const { id } = req.params;
+  const { heading, caption, languages, url, date } = req.body;
+  const image = req.file ? req.file.path : null;
+
+  try {
+    const updatedData = {
+      heading,
+      caption,
+      languages,
+      url,
+      date: new Date(date),
+    };
+
+    if (image) {
+      updatedData.image = image;
+    }
+
+    const project = await prisma.projects.update({
+      where: { id: parseInt(id) },
+      data: updatedData,
+    });
+    res.json(project);
+  } catch (error) {
+    console.error('Error editing project:', error);
+    res.status(500).json({ error: 'Error editing project' });
+  }
+});
+
+app.delete('/api/projects/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await prisma.projects.delete({
+      where: { id: parseInt(id) },
+    });
+    res.json({ message: 'Project deleted' });
+  } catch (error) {
+    console.error('Error deleting project:', error);
+    res.status(500).json({ error: 'Error deleting project' });
   }
 });
 

@@ -16,3 +16,12 @@ model Blog {
   date        DateTime
   image       String
 }
+model Projects {
+  id        Int      @id @default(autoincrement())
+  image     String
+  heading   String
+  caption   String
+  languages String
+  url       String
+  date      DateTime
+}
