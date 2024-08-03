@@ -1,4 +1,5 @@
 // Import required modules
+require('dotenv').config(); // Load environment variables
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const multer = require('multer');
