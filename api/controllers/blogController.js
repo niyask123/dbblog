@@ -39,16 +39,21 @@ exports.updateBlog = async (req, res) => {
   const image = req.file ? req.file.path : null;
 
   try {
+    const updateData = {
+      heading,
+      title,
+      description,
+      blogURL,
+      date: new Date(date),
+    };
+
+    if (image) {
+      updateData.image = image;
+    }
+
     const blog = await prisma.blog.update({
       where: { id: parseInt(id) },
-      data: {
-        heading,
-        title,
-        description,
-        blogURL,
-        date: new Date(date),
-        image,
-      },
+      data: updateData,
     });
     res.json(blog);
   } catch (error) {
