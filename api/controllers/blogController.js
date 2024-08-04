@@ -1,3 +1,4 @@
+// blogControllers.js
 const prisma = require('../../prisma');
 
 // Create a new blog post

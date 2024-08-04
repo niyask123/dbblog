@@ -1,6 +1,6 @@
 datasource db {
   provider = "postgresql"
-  url      = "postgres://default:aTHNiLZFK97e@ep-lucky-rain-a4xlv2nz.us-east-1.aws.neon.tech:5432/verceldb?sslmode=require"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -16,12 +16,13 @@ model Blog {
   date        DateTime
   image       String
 }
-model Projects {
+
+model Project {
   id        Int      @id @default(autoincrement())
-  image     String
   heading   String
   caption   String
   languages String
   url       String
   date      DateTime
+  images    String[]
 }
